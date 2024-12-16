@@ -149,9 +149,21 @@ namespace JobSystem.Controllers
         [Authorize]
         public IActionResult CandidateDashPage()
         {
-            ViewBag.Name = HttpContext.User.Identity.Name;
-            return View();
+            string currentUserName = HttpContext.User.Identity.Name;
+
+            if (string.IsNullOrEmpty(currentUserName))
+            {
+                // If the user is not logged in, redirect to the login page or show an error
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Fetch all job postings from the database
+            var jobPostings = _context.JobPostings.ToList();
+
+            return View(jobPostings);
         }
+
+
 
         [Authorize]
         public IActionResult CompanyDashPage()
@@ -215,6 +227,20 @@ namespace JobSystem.Controllers
 
             throw new Exception("CompanyId not found in claims.");
         }
+
+        private int GetCurrentCandidateId()
+        {
+            // Get the CandidateId claim from the authenticated user's claims
+            var candidateIdClaim = User.Claims.FirstOrDefault(c => c.Type == "CandidateId");
+            if (candidateIdClaim != null && int.TryParse(candidateIdClaim.Value, out int candidateId))
+            {
+                return candidateId;
+            }
+
+            throw new Exception("CandidateId not found in claims.");
+        }
+
+
         [HttpGet]
         public IActionResult CreateJob()
         {
@@ -484,7 +510,58 @@ namespace JobSystem.Controllers
         {
             return View();
         }
-        
+        [HttpGet]
+        public IActionResult Apply()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Apply(ApplicationViewModel model)
+        {
+            int candidateId = GetCurrentCandidateId();
 
+            // Retrieve the company name from the database
+            var candidate = _context.CandidateAccounts.FirstOrDefault(c => c.CandidateID == candidateId);
+            if (candidate == null)
+            {
+                ModelState.AddModelError("", "Invalid company account.");
+                return View("CompanyDashPage", model);
+            }
+
+            Application app = new Application();
+            app.CandidateId = candidateId;
+            app.Resume = model.Resume;
+            app.ApplicationDescription = model.ApplicationDescription;
+            app.DateApplied = DateOnly.FromDateTime(DateTime.Now);
+
+            _context.Applications.Add(app);
+            _context.SaveChanges();
+            return RedirectToAction("CandidateDashPage");
+        }
+
+        public ActionResult DetailsCan(int id)
+        {
+            var jobPosting = _context.JobPostings.Find(id);
+
+            if (jobPosting == null)
+            {
+                return NotFound();  // Return a 404 if the job posting is not found
+            }
+
+            // Map the entity data to the ViewModel
+            var model = new JobPostingViewModel
+            {
+                Id = jobPosting.Id,
+                Title = jobPosting.Title,
+                Location = jobPosting.Location,
+                Type = jobPosting.Type,
+                Salary = jobPosting.Salary,
+                Description = jobPosting.Description,
+                PostedDate = jobPosting.PostedDate
+            };
+
+            //var jobPosting = _context.JobPostings.Find(id);
+            return View(model);
+        }
     }
 }
