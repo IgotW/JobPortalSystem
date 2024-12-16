@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/3IgbluLW6ZUbl12uVGfI87l16hL/VRpDJug77TTcxrbHzVe23Fx/MD1+4GBd7+H/xlyj+P21w9sne/iZR/FEA==",
+  "dgSpecHash": "UMYIfePLdf7/m00CM+ZoXSi+aw2MeupouzsUNCVgRamIv2DcFighfuu7tr6TYSyb8cWcKVjXXnznrcVaIBDmUw==",
   "success": true,
-  "projectFilePath": "E:\\Project ELDNET\\Final\\JobSystem\\JobSystem.csproj",
+  "projectFilePath": "D:\\Project\\JobPortalSystem\\JobSystem\\JobSystem.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Went\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\Went\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
